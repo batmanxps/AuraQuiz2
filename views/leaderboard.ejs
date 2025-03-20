@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - AuraQuiz</title>
+    <link rel="stylesheet" href="/styles/output.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: Arial, sans-serif;
+        }
+
+        .leaderboard-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .leaderboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .leaderboard-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3b82f6;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .leaderboard-table th {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .leaderboard-table tr:hover {
+            background-color: #eef2ff;
+        }
+
+        .username {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .verified-badge {
+            color: #3b82f6;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="leaderboard-container">
+        <div class="leaderboard-header">
+            <a href="/" class="text-blue-600 hover:text-blue-800">
+                <i class="ri-arrow-left-line" style="font-size: 24px;"></i>
+            </a>
+            <h2 class="leaderboard-title">Leaderboard</h2>
+        </div>
+
+        <select id="quizSelector" class="mt-4 p-2 border rounded w-full">
+            <option value="">Select Quiz</option>
+        </select>
+
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th>Correct</th>
+                    <th>Time Taken</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const response = await fetch("/quizzes");
+                const data = await response.json();
+                const quizSelector = document.getElementById("quizSelector");
+                data.forEach(quiz => {
+                    const option = document.createElement("option");
+                    option.value = quiz._id;
+                    option.textContent = quiz.title;
+                    quizSelector.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error fetching quizzes:", error);
+            }
+        });
+
+        document.getElementById("quizSelector").addEventListener("change", async function () {
+            const quizId = this.value;
+            if (!quizId) return;
+            try {
+                const response = await fetch(`/leaderboard/${quizId}`);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                const tbody = document.querySelector(".leaderboard-table tbody");
+                tbody.innerHTML = "";
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center">No results available.</td></tr>`;
+                    return;
+                }
+                data.forEach((entry, index) => {
+                    const adminBadge = entry.isAdmin ? `<i class="ri-verified-badge-fill verified-badge"></i>` : "";
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td class="username">${entry.username} ${adminBadge}</td>
+                            <td>${entry.score}</td>
+                            <td>${entry.correctAnswers}</td>
+                            <td>${Math.floor(entry.timeTaken / 60)}:${String(entry.timeTaken % 60).padStart(2, '0')}</td>
+                        </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Error fetching leaderboard:", error);
+            }
+        });
+    </script>
+</body>
+
+</html>
