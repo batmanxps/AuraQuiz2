@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        isTopper: {
+            type: Boolean,
+            default: false,
+        },
         uid: String,
     },
     {

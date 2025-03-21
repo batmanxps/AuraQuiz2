@@ -4,97 +4,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard - AuraQuiz</title>
+    <title>Leaderboard - QuizBuzz</title>
     <link rel="stylesheet" href="/styles/output.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
-    <style>
-        body {
-            background-color: #f3f4f6;
-            font-family: Arial, sans-serif;
-        }
-
-        .leaderboard-container {
-            max-width: 800px;
-            margin: 40px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .leaderboard-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .leaderboard-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #3b82f6;
-            text-align: center;
-            flex-grow: 1;
-        }
-
-        .leaderboard-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .leaderboard-table th, .leaderboard-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .leaderboard-table th {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .leaderboard-table tr:hover {
-            background-color: #eef2ff;
-        }
-
-        .username {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .verified-badge {
-            color: #3b82f6;
-            font-size: 18px;
-        }
-    </style>
 </head>
 
-<body>
-    <div class="leaderboard-container">
-        <div class="leaderboard-header">
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-3xl mx-auto mt-6 p-4 bg-white rounded-lg shadow-md">
+        <div class="flex items-center justify-between pb-2 border-b border-gray-200">
             <a href="/" class="text-blue-600 hover:text-blue-800">
-                <i class="ri-arrow-left-line" style="font-size: 24px;"></i>
+                <i class="ri-arrow-left-line text-2xl"></i>
             </a>
-            <h2 class="leaderboard-title">Leaderboard</h2>
+            <h2 class="text-lg font-semibold text-blue-600 text-center flex-grow">Leaderboard</h2>
         </div>
 
-        <select id="quizSelector" class="mt-4 p-2 border rounded w-full">
+        <!-- Quiz Selection Dropdown -->
+        <select id="quizSelector"
+            class="mt-4 p-2 border rounded w-full bg-gray-100 text-gray-700 focus:ring focus:ring-blue-200">
             <option value="">Select Quiz</option>
         </select>
 
-        <table class="leaderboard-table">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Name</th>
-                    <th>Score</th>
-                    <th>Correct</th>
-                    <th>Time Taken</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <!-- Responsive Table Container -->
+        <div class="overflow-hidden mt-4">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-blue-600 text-white text-sm">
+                        <th class="p-3">Rank</th>
+                        <th class="p-3">Name</th>
+                        <th class="p-3">Score</th>
+                        <th class="p-3">Correct</th>
+                        <th class="p-3">Time Taken</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -103,6 +47,7 @@
                 const response = await fetch("/quizzes");
                 const data = await response.json();
                 const quizSelector = document.getElementById("quizSelector");
+
                 data.forEach(quiz => {
                     const option = document.createElement("option");
                     option.value = quiz._id;
@@ -112,31 +57,43 @@
             } catch (error) {
                 console.error("Error fetching quizzes:", error);
             }
+            console.log("Developed By Pushkar Ps")
         });
 
         document.getElementById("quizSelector").addEventListener("change", async function () {
             const quizId = this.value;
             if (!quizId) return;
+
             try {
                 const response = await fetch(`/leaderboard/${quizId}`);
                 if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
                 const data = await response.json();
-                const tbody = document.querySelector(".leaderboard-table tbody");
+                const tbody = document.querySelector(".w-full tbody");
+
+                // Clear previous leaderboard data before inserting new data
                 tbody.innerHTML = "";
+
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center">No results available.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center p-3 text-gray-500">No results available.</td></tr>`;
                     return;
                 }
+
                 data.forEach((entry, index) => {
-                    const adminBadge = entry.isAdmin ? `<i class="ri-verified-badge-fill verified-badge"></i>` : "";
+                    const adminBadge = entry.isAdmin ? `<i class="ri-verified-badge-fill text-blue-500"></i>` : "";
+                    const topperBadge = entry.isTopper ? `<i class="ri-vip-crown-fill text-yellow-500"></i>` : "";
+
                     const row = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td class="username">${entry.username} ${adminBadge}</td>
-                            <td>${entry.score}</td>
-                            <td>${entry.correctAnswers}</td>
-                            <td>${Math.floor(entry.timeTaken / 60)}:${String(entry.timeTaken % 60).padStart(2, '0')}</td>
+                        <tr class="border-b hover:bg-blue-50">
+                            <td class="p-3 text-center">${index + 1}</td>
+                            <td class="p-3 flex items-center gap-2 truncate">
+                                ${topperBadge} <span>${entry.username}</span> ${adminBadge}
+                            </td>
+                            <td class="p-3 text-center">${entry.score}</td>
+                            <td class="p-3 text-center">${entry.correctAnswers}</td>
+                            <td class="p-3 text-center">${Math.floor(entry.timeTaken / 60)}:${String(entry.timeTaken % 60).padStart(2, '0')}</td>
                         </tr>`;
+
                     tbody.innerHTML += row;
                 });
             } catch (error) {

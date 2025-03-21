@@ -33,6 +33,40 @@ router.delete('/delete-user/:id', async (req, res) => {
     }
 });
 
+router.get('/verifyUser', async (req, res) => {
+    try {
+        const users = await User.find({}, 'fullName email');
+        res.render('verifyUser', { users });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+
+router.post('/verify/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        console.log(userId);
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { isVerify: true },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, message: "User verified successfully!" });
+    } catch (error) {
+        console.error("Error verifying user:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+
+
+
 
 router.get('/add-test', (req, res) => {
     res.render('admin-add-test')

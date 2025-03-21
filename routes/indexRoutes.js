@@ -189,7 +189,7 @@ router.get("/leaderboard/:quizId", async (req, res) => {
         }
 
         const topResults = await QuizResult.find(query)
-            .populate("userId", "username isAdmin")
+            .populate("userId", "username isAdmin isTopper")
             .sort({ score: -1, timeTaken: 1 })
             .limit(10);
 
@@ -198,6 +198,7 @@ router.get("/leaderboard/:quizId", async (req, res) => {
             .map(result => ({
                 username: result.userId.username || "Unknown",
                 isAdmin: result.userId.isAdmin || false,
+                isTopper: result.userId.isTopper || false,
                 score: result.score,
                 correctAnswers: result.correctAnswers,
                 timeTaken: result.timeTaken

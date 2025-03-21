@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Delete User - AuraQuiz</title>
+  <title>Delete User - QuizBuzz</title>
   <link rel="stylesheet" href="/styles/output.css">
   <style>
     /* Custom styles for the confirmation popup */
@@ -130,7 +130,7 @@
                 .then(data => {
                   if (data.success) {
                     alert("User deleted successfully!");
-                    location.reload(); // Refresh page
+                    location.reload(); 
                   } else {
                     alert("Error: " + data.message);
                   }

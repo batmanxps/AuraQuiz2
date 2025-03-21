@@ -17,7 +17,7 @@ router.post('/signup', async (req, res) => {
     try {
         let { username, email, password, fullName } = req.body;
 
-        function generateCustomUid(prefix = 'AURA-', length = 12) {
+        function generateCustomUid(prefix = 'PS-', length = 12) {
             const uuidWithoutHyphens = uuidv4().replace(/-/g, '');
             const customUid = `${prefix}${uuidWithoutHyphens.slice(0, length)}`;
             return customUid;
@@ -63,13 +63,13 @@ router.post('/login', async (req, res) => {
         });
 
         if (!foundUser) {
-            req.flash('error', 'Invalid username or email.');
+            req.flash('error', 'Invalid Username/Email or Password');
             return res.redirect('/auth/login');
         }
 
         const isMatch = await bcrypt.compare(password, foundUser.password);
         if (!isMatch) {
-            req.flash('error', 'Invalid password.');
+            req.flash('error', 'Invalid Username/Email or Password');
             return res.redirect('/auth/login');
         }
 
@@ -90,6 +90,10 @@ router.post('/login', async (req, res) => {
         req.flash('error', 'An internal error occurred. Please try again.');
         res.redirect('/auth/login');
     }
+});
+
+router.get('/ping', (req, res) => {
+    res.status(200).send("Server is alive! 🚀");
 });
 
 router.get('/logout', (req, res) => {
